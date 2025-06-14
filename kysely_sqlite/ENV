@@ -1,0 +1,3 @@
+#DATABASE_URL=/home/devg1120/dev/kysely-test/sqlite-test/exercise_kysely_sqlite/sqlite/exercise.sqlite3  
+DATABASE_URL=./sqlite/exercise.sqlite3 
+
