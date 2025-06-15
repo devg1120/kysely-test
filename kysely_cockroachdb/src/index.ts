@@ -27,10 +27,10 @@ export interface DB {
 const dialect = new PostgresDialect({
     pool: new Pool({
         host: "localhost",
-        port: 5432,
+        port: 26257,
         user: "test",
         password: "test",
-        database: "testdb3",
+        database: "testdb1",
     })
 })
 export const db = new Kysely<DB>({
