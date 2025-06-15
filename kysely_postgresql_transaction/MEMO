@@ -1,0 +1,106 @@
+
+systemctl start  postgresql
+$ su - postgres
+
+psql
+
+> CREATE DATABASE  testdb4;
+
+./create.sh
+./insert.sh
+./select.sh
+
+.env
+DATABASE_URL=postgres://test:test@localhost:5432/testdb4 
+
+
+yarn add pg
+yarn add kysely-codegen 
+
+
+
+yarn kysely-codegen --out-file src/db_types.ts
+• Loaded environment variables from '.env'.
+• No dialect specified. Assuming 'postgres'.
+• Introspecting database...
+✓ Introspected 2 tables and generated ./src/db_types.ts in 45ms.
+
+
+src/index.ts
+------------------------------------
+import type { DB }  from "./db_types.ts"
+import {Pool} from "pg"
+
+const dialect = new PostgresDialect({
+    pool: new Pool({
+        host: "localhost",
+        port: 5432,
+        user: "test",
+        password: "test",
+        database: "testdb3",
+    })
+})
+
+export const db = new Kysely<DB>({
+    dialect,
+    log: (event) => {
+        if (event.level === "query") {
+            console.log(event.query.sql)
+            console.log(event.query.parameters)
+        }
+    }
+})
+
+------------------------------------
+$ ./curl_post_good.sh 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   235  100   235    0     0    931      0 --:--:-- --:--:-- --:--:--   932
+[
+  {
+    "name": "San Francisco",
+    "tempLo": 43,
+    "tempHi": 57,
+    "prcp": 0,
+    "date": "2023-01-01"
+  },
+  {
+    "name": "San Francisco",
+    "tempLo": 43,
+    "tempHi": 57,
+    "prcp": 0,
+    "date": "2023-01-02"
+  },
+  {
+    "name": "San Francisco",
+    "tempLo": 43,
+    "tempHi": 57,
+    "prcp": 0,
+    "date": "2023-01-03"
+  }
+]
+
+$ ./_select.sh 
+     name      |    location    
+---------------+----------------
+ San Francisco | (-194.0, 53.0)
+(1 row)
+
+     city      | temp_lo | temp_hi | prcp |    date    
+---------------+---------+---------+------+------------
+ San Francisco |      43 |      57 |    0 | 2023-01-01
+ San Francisco |      43 |      57 |    0 | 2023-01-02
+ San Francisco |      43 |      57 |    0 | 2023-01-03
+(3 rows)
+
+
+$ ./curl_post_bad.sh 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   123  100   123    0     0   2444      0 --:--:-- --:--:-- --:--:--  2460
+{
+  "message": "error: insert or update on table \"weather\" violates foreign key constraint \"weather_city_fkey\"",
+  "ok": false
+}
+
+
