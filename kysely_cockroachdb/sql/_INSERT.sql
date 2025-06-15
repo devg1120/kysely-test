@@ -1,0 +1,32 @@
+INSERT INTO foo
+(
+    col_text,
+    col_text_null,
+    col_int,
+    col_int_null,
+    col_real,
+    col_real_null
+    --col_timestamp,
+    --col_timestamp_null
+)
+VALUES
+(
+    'text_data',
+    NULL,
+    12341289,
+    NULL,
+    3.14,
+    NULL
+    --0,
+    --0
+),
+(
+    'text_data',
+    'text_data',
+    12341289,
+    12341289,
+    3.14,
+    3.14
+    --0,
+    --0 
+);

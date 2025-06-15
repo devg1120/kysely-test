@@ -1,0 +1,73 @@
+install
+https://kazuhira-r.hatenablog.com/entry/2021/08/04/221322
+
+
+$ sudo mkdir -p /var/lib/cockroach/data
+$ sudo chown -R `whoami`:`whoami` /var/lib/cockroach
+
+$ cockroach start-single-node --insecure --store=/var/lib/cockroach/data
+
+open http://127.0.0.1:8080/
+
+$ mkdir cockroachdb && cd cockroachdb # この行は実行しなくてもOK
+$ cockroach cert create-ca --certs-dir=certs --ca-key=ca.key
+$ cockroach cert create-node localhost $(hostname) --certs-dir=certs --ca-key=ca.key
+$ cockroach cert create-client root --certs-dir=certs --ca-key=ca.key
+
+$ ls certs/
+ca.crt  client.root.crt  client.root.key  node.crt  node.key
+
+$ cockroach start-single-node --certs-dir=certs --store=/var/lib/cockroach/data
+
+$ cockroach sql --certs-dir=certs --host=localhost:26257
+
+>>> CREATE USER test WITH PASSWORD 'test';
+
+>>> ALTER ROLE test WITH CREATEDB; 
+ALTER ROLE
+
+Time: 452ms total (execution 452ms / network 1ms)
+
+>>> ALTER USER root WITH PASSWORD root;
+
+>>> show roles;                    
+  username | options  | member_of
+-----------+----------+------------
+  admin    |          | {}
+  root     |          | {admin}
+  test     | CREATEDB | {}
+(3 rows)
+
+
+open http://127.0.0.1:8080/   id:test password:test
+
+>>> show databases;
+  database_name | owner | primary_region | regions | survival_goal
+----------------+-------+----------------+---------+----------------
+  defaultdb     | root  | NULL           | {}      | NULL
+  postgres      | root  | NULL           | {}      | NULL
+  system        | node  | NULL           | {}      | NULL
+(3 rows)
+
+root@localhost:26257/defaultdb> create database testdb1;
+
+root@localhost:26257/defaultdb> show databases;                                                                                  
+  database_name | owner | primary_region | regions | survival_goal
+----------------+-------+----------------+---------+----------------
+  defaultdb     | root  | NULL           | {}      | NULL
+  postgres      | root  | NULL           | {}      | NULL
+  system        | node  | NULL           | {}      | NULL
+  testdb1       | root  | NULL           | {}      | NULL
+(4 rows)
+
+alter database testdb1 owner to test;
+
+
+
+
+$ cockroach sql  --certs-dir=certs --host=localhost:26257 -d testdb1 -u test
+Enter Password: test
+
+$ cockroach sql  --certs-dir=certs --host=localhost:26257 -d testdb1 -u test -f ./TEST.sql
+
+
